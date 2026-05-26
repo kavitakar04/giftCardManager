@@ -24,6 +24,7 @@ protocol CardRepository {
     func getCard(id: UUID) throws -> StoredCard
     func createCard(_ input: CardCreateInput, merchant: Merchant) throws -> StoredCard
     func archiveCard(id: UUID) throws
+    func backfillMissingBalanceHistory() throws
     func updateManualBalance(id: UUID, minorUnits: Int?, currency: String) throws -> StoredCard
     func listBalanceHistory(cardID: UUID) throws -> [BalanceAdjustment]
     func listBalanceHistory(merchantID: String) throws -> [BalanceAdjustment]
@@ -128,6 +129,36 @@ final class SwiftDataCardRepository: CardRepository {
         card.archivedAt = Date()
         card.updatedAt = Date()
         try context.save()
+    }
+
+    func backfillMissingBalanceHistory() throws {
+        var descriptor = FetchDescriptor<StoredCard>(
+            predicate: #Predicate { $0.archivedAt == nil },
+            sortBy: [SortDescriptor(\.updatedAt)]
+        )
+        descriptor.includePendingChanges = true
+
+        var didInsertHistory = false
+        for card in try context.fetch(descriptor) {
+            guard card.currentBalanceMinorUnits != nil else { continue }
+            if try listBalanceHistory(cardID: card.id).isEmpty {
+                recordBalanceAdjustment(
+                    for: card,
+                    previousBalanceMinorUnits: nil,
+                    newBalanceMinorUnits: card.currentBalanceMinorUnits,
+                    currency: card.currency,
+                    balanceSource: card.balanceSource,
+                    balanceStatus: card.balanceStatus,
+                    note: "Imported from saved card balance.",
+                    createdAt: card.lastBalanceUpdateAt ?? card.updatedAt
+                )
+                didInsertHistory = true
+            }
+        }
+
+        if didInsertHistory {
+            try context.save()
+        }
     }
 
     func updateManualBalance(id: UUID, minorUnits: Int?, currency: String) throws -> StoredCard {
@@ -276,7 +307,8 @@ final class SwiftDataCardRepository: CardRepository {
         currency: String,
         balanceSource: BalanceSource,
         balanceStatus: BalanceStatus,
-        note: String?
+        note: String?,
+        createdAt: Date = Date()
     ) {
         context.insert(
             BalanceAdjustment(
@@ -289,7 +321,8 @@ final class SwiftDataCardRepository: CardRepository {
                 currency: currency.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? card.currency : currency.uppercased(),
                 balanceSource: balanceSource,
                 balanceStatus: balanceStatus,
-                note: note
+                note: note,
+                createdAt: createdAt
             )
         )
     }
