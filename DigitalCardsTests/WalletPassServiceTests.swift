@@ -201,6 +201,41 @@ final class CardRepositoryBalanceTests: XCTestCase {
     }
 
     @MainActor
+    func testBackfillCreatesOneAuditEntryForExistingBalancedCards() throws {
+        let (repository, container) = try makeRepository()
+        let encryption = try EncryptionService(keyStore: InMemoryKeyStore(key: Data(repeating: 4, count: 32)))
+        let updatedAt = Date(timeIntervalSince1970: 100)
+        let card = StoredCard(
+            merchantID: "starbucks",
+            displayName: "Starbucks",
+            cardNumberCiphertext: try encryption.encrypt("1234567890123456"),
+            pinCiphertext: nil,
+            barcodeValueCiphertext: try encryption.encrypt("1234567890123456"),
+            barcodeFormat: .code128,
+            currentBalanceMinorUnits: 2750,
+            currency: "USD",
+            balanceSource: .manual,
+            balanceStatus: .userEntered,
+            lastBalanceUpdateAt: updatedAt,
+            cardNumberLast4: "3456",
+            createdAt: updatedAt,
+            updatedAt: updatedAt
+        )
+        container.mainContext.insert(card)
+        try container.mainContext.save()
+
+        try repository.backfillMissingBalanceHistory()
+        try repository.backfillMissingBalanceHistory()
+
+        let history = try repository.listBalanceHistory(cardID: card.id)
+        XCTAssertEqual(history.count, 1)
+        XCTAssertNil(history[0].previousBalanceMinorUnits)
+        XCTAssertEqual(history[0].newBalanceMinorUnits, 2750)
+        XCTAssertEqual(history[0].note, "Imported from saved card balance.")
+        XCTAssertEqual(history[0].createdAt, updatedAt)
+    }
+
+    @MainActor
     func testBalanceRefreshConsentIsScopedAndClearable() throws {
         let (repository, _) = try makeRepository()
         let merchant = MerchantCatalog.phase1.merchant(id: "subway")
