@@ -40,7 +40,7 @@ struct WalletExportView: View {
                             .padding(.horizontal)
                             .padding(.top, 8)
 
-                            Text("The Wallet pass includes the barcode and balance. The PIN is not included.")
+                            Text("The Wallet pass includes the barcode, balance, and PIN when this card has one.")
                                 .font(.footnote)
                                 .foregroundStyle(.secondary)
                                 .padding(.horizontal)

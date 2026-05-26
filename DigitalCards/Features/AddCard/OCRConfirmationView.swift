@@ -30,9 +30,9 @@ struct OCRConfirmationView: View {
 
         let merchant = result.merchantCandidates.first
         _merchantID = State(initialValue: merchant?.merchantID ?? MerchantCatalog.other.id)
-        _displayName = State(initialValue: merchant?.displayName ?? MerchantCatalog.other.displayName)
-        _cardNumber = State(initialValue: result.cardNumberCandidates.first?.value ?? "")
-        _pin = State(initialValue: result.pinCandidates.first?.value ?? "")
+        _displayName = State(initialValue: InputSanitizer.displayName(merchant?.displayName ?? MerchantCatalog.other.displayName))
+        _cardNumber = State(initialValue: InputSanitizer.cardNumber(result.cardNumberCandidates.first?.value ?? ""))
+        _pin = State(initialValue: InputSanitizer.pin(result.pinCandidates.first?.value ?? ""))
         _useDetectedBarcode = State(initialValue: result.barcode?.format.isRenderableInPhase1 == true)
     }
 
@@ -57,7 +57,7 @@ struct OCRConfirmationView: View {
                         ForEach(result.merchantCandidates) { candidate in
                             Button {
                                 merchantID = candidate.merchantID
-                                displayName = candidate.displayName
+                                displayName = InputSanitizer.displayName(candidate.displayName)
                             } label: {
                                 HStack {
                                     Text(candidate.displayName)
@@ -78,7 +78,7 @@ struct OCRConfirmationView: View {
 
                     ForEach(result.cardNumberCandidates) { candidate in
                         Button(candidate.value) {
-                            cardNumber = candidate.value
+                            cardNumber = InputSanitizer.cardNumber(candidate.value)
                         }
                         .privacySensitive()
                     }
@@ -91,7 +91,7 @@ struct OCRConfirmationView: View {
 
                     ForEach(result.pinCandidates) { candidate in
                         Button(candidate.sourceLabel ?? "Detected PIN") {
-                            pin = candidate.value
+                            pin = InputSanitizer.pin(candidate.value)
                         }
                         .privacySensitive()
                     }
@@ -127,8 +127,11 @@ struct OCRConfirmationView: View {
             }
             .onChange(of: merchantID) { _, newValue in
                 let merchant = environment.merchantCatalog.merchant(id: newValue)
-                displayName = merchant.displayName
+                displayName = InputSanitizer.displayName(merchant.displayName)
             }
+            .onChange(of: displayName) { _, newValue in sanitizeDisplayName(newValue) }
+            .onChange(of: cardNumber) { _, newValue in sanitizeCardNumber(newValue) }
+            .onChange(of: pin) { _, newValue in sanitizePIN(newValue) }
             .alert(item: $errorMessage) { message in
                 Alert(title: Text("Review Needed"), message: Text(message.text), dismissButton: .default(Text("OK")))
             }
@@ -142,8 +145,9 @@ struct OCRConfirmationView: View {
     }
 
     private func apply() {
-        let trimmedCard = cardNumber.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedPIN = pin.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedCard = InputSanitizer.cardNumber(cardNumber).trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedPIN = InputSanitizer.pin(pin).trimmingCharacters(in: .whitespacesAndNewlines)
+        let sanitizedDisplayName = InputSanitizer.displayName(displayName)
         guard !trimmedCard.isEmpty else {
             errorMessage = ErrorMessage(text: "Confirm or enter the card number before applying OCR results.")
             return
@@ -152,15 +156,31 @@ struct OCRConfirmationView: View {
         onConfirm(
             CardOCRConfirmation(
                 merchantID: merchantID,
-                displayName: displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? selectedMerchant.displayName : displayName,
+                displayName: sanitizedDisplayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    ? selectedMerchant.displayName : sanitizedDisplayName,
                 cardNumber: trimmedCard,
                 pin: trimmedPIN.isEmpty ? nil : trimmedPIN,
-                barcodeValue: useDetectedBarcode ? result.barcode?.value : nil,
+                barcodeValue: useDetectedBarcode ? result.barcode.map { InputSanitizer.barcodeValue($0.value) } : nil,
                 barcodeFormat: useDetectedBarcode ? result.barcode?.format : nil
             )
         )
         clearSensitiveState()
         dismiss()
+    }
+
+    private func sanitizeDisplayName(_ value: String) {
+        let sanitized = InputSanitizer.displayName(value)
+        if sanitized != value { displayName = sanitized }
+    }
+
+    private func sanitizeCardNumber(_ value: String) {
+        let sanitized = InputSanitizer.cardNumber(value)
+        if sanitized != value { cardNumber = sanitized }
+    }
+
+    private func sanitizePIN(_ value: String) {
+        let sanitized = InputSanitizer.pin(value)
+        if sanitized != value { pin = sanitized }
     }
 
     private func clearSensitiveState() {

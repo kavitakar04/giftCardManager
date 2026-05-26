@@ -50,6 +50,7 @@ export function buildPassJson(request, config) {
   const balanceLabel = formatBalance(request.current_balance_minor_units, request.currency);
   const barcodeFormat = passkitBarcodeFormats.get(request.barcode_format);
   const pin = typeof request.pin === "string" ? request.pin.trim() : "";
+  const barcodeAltText = formatBarcodeAltText(request.card_number_last4, pin);
   const auxiliaryFields = [
     {
       key: "ending",
@@ -94,6 +95,15 @@ export function buildPassJson(request, config) {
       ],
       auxiliaryFields,
       backFields: [
+        ...(pin
+          ? [
+              {
+                key: "pin_back",
+                label: "PIN",
+                value: pin
+              }
+            ]
+          : []),
         {
           key: "redemption",
           label: "Redemption",
@@ -105,14 +115,14 @@ export function buildPassJson(request, config) {
       message: request.barcode_value,
       format: barcodeFormat,
       messageEncoding: "iso-8859-1",
-      altText: `Ending ${request.card_number_last4}`
+      altText: barcodeAltText
     },
     barcodes: [
       {
         message: request.barcode_value,
         format: barcodeFormat,
         messageEncoding: "iso-8859-1",
-        altText: `Ending ${request.card_number_last4}`
+        altText: barcodeAltText
       }
     ]
   };
@@ -202,4 +212,9 @@ function formatBalance(minorUnits, currency) {
     style: "currency",
     currency
   }).format(minorUnits / 100);
+}
+
+function formatBarcodeAltText(last4, pin) {
+  const endingText = `Ending ${last4}`;
+  return pin ? `${endingText} | PIN ${pin}` : endingText;
 }

@@ -13,6 +13,15 @@ final class MoneyFormatterTests: XCTestCase {
         XCTAssertEqual(MoneyFormatter.last4("1234 5678 9012"), "9012")
     }
 
+    func testInputSanitizerAppliesPracticalFormLimits() {
+        XCTAssertEqual(InputSanitizer.displayName("Dunkin'\nRewards\tCard"), "Dunkin' RewardsCard")
+        XCTAssertEqual(InputSanitizer.cardNumber("ABcd 1234-56!*"), "ABcd 1234-56")
+        XCTAssertEqual(InputSanitizer.pin("12-34 ab#$"), "12-34 ab")
+        XCTAssertEqual(InputSanitizer.barcodeValue("https://example.com/card?id=123\n"), "https://example.com/card?id=123")
+        XCTAssertEqual(InputSanitizer.balance("$1,234.567"), "1234.56")
+        XCTAssertEqual(InputSanitizer.currency("u$s-d123"), "USD")
+    }
+
     func testBalanceTotalsGroupByCurrencyAndIgnoreUnknownBalances() {
         let cards = [
             makeSummary(balance: 2500, currency: "usd"),

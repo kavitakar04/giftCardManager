@@ -134,6 +134,32 @@ final class CardRepositoryBalanceTests: XCTestCase {
     }
 
     @MainActor
+    func testArchiveCardRemovesItFromActiveCards() throws {
+        let (repository, _) = try makeRepository()
+        let merchant = MerchantCatalog.phase1.merchant(id: "subway")
+        let card = try repository.createCard(
+            CardCreateInput(
+                merchantID: merchant.id,
+                displayName: merchant.displayName,
+                cardNumber: "1234567890123456",
+                pin: "9999",
+                barcodeValue: "1234567890123456",
+                barcodeFormat: .code128,
+                startingBalanceMinorUnits: 0,
+                currency: "USD"
+            ),
+            merchant: merchant
+        )
+
+        XCTAssertEqual(try repository.listActiveCards().map(\.id), [card.id])
+
+        try repository.archiveCard(id: card.id)
+
+        XCTAssertTrue(try repository.listActiveCards().isEmpty)
+        XCTAssertThrowsError(try repository.getCard(id: card.id))
+    }
+
+    @MainActor
     func testRefreshFailureKeepsExistingBalanceAndStoresMessage() throws {
         let (repository, _) = try makeRepository()
         let merchant = MerchantCatalog.phase1.merchant(id: "subway")

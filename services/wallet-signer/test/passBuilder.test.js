@@ -63,6 +63,13 @@ test("builds store card pass json with pin", () => {
     label: "PIN",
     value: "9999"
   });
+  assert.deepEqual(passJson.storeCard.backFields[0], {
+    key: "pin_back",
+    label: "PIN",
+    value: "9999"
+  });
   assert.equal(passJson.barcode.format, "PKBarcodeFormatCode128");
+  assert.equal(passJson.barcode.altText, "Ending 1234 | PIN 9999");
+  assert.equal(passJson.barcodes[0].altText, "Ending 1234 | PIN 9999");
   assert.equal(encoded.includes("9999"), true);
 });

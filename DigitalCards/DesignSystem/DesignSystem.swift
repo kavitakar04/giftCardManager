@@ -76,12 +76,36 @@ struct SolidCTAButtonStyle: ButtonStyle {
     }
 }
 
+struct DestructiveGlassButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.body.weight(.semibold))
+            .foregroundStyle(.red)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(.red.opacity(configuration.isPressed ? 0.08 : 0.13))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .stroke(.red.opacity(0.35), lineWidth: 1)
+                    )
+            )
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .animation(.spring(response: 0.2), value: configuration.isPressed)
+    }
+}
+
 extension ButtonStyle where Self == GlassPillButtonStyle {
     static var glassPill: GlassPillButtonStyle { GlassPillButtonStyle() }
 }
 
 extension ButtonStyle where Self == SolidCTAButtonStyle {
     static var solidCTA: SolidCTAButtonStyle { SolidCTAButtonStyle() }
+}
+
+extension ButtonStyle where Self == DestructiveGlassButtonStyle {
+    static var destructiveGlass: DestructiveGlassButtonStyle { DestructiveGlassButtonStyle() }
 }
 
 struct NeonPillButtonStyle: ButtonStyle {

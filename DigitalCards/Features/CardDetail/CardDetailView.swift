@@ -5,6 +5,7 @@ import UIKit
 struct CardDetailView: View {
     let cardID: UUID
 
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject private var environment: AppEnvironment
@@ -14,6 +15,7 @@ struct CardDetailView: View {
     @State private var revealedSecrets: CardSecrets?
     @State private var showEditBalance = false
     @State private var showWalletExport = false
+    @State private var showDeleteConfirmation = false
     @State private var errorMessage: ErrorMessage?
 
     private var repository: SwiftDataCardRepository {
@@ -50,7 +52,7 @@ struct CardDetailView: View {
                         actionPills(card: card)
                         detailsSection(card: card)
                         BalanceHistorySection(title: "Balance History", entries: balanceHistory)
-                        managementSection()
+                        managementSection(card: card)
                     }
                     .padding(.bottom, 40)
                 }
@@ -64,6 +66,16 @@ struct CardDetailView: View {
                 }
                 .sheet(isPresented: $showWalletExport) {
                     WalletExportView(cardID: cardID).environmentObject(environment)
+                }
+                .confirmationDialog(
+                    deleteTitle(for: card),
+                    isPresented: $showDeleteConfirmation,
+                    titleVisibility: .visible
+                ) {
+                    Button(deleteTitle(for: card), role: .destructive, action: deleteCard)
+                    Button("Cancel", role: .cancel) {}
+                } message: {
+                    Text(deleteMessage(for: card))
                 }
             } else {
                 ZStack {
@@ -150,7 +162,7 @@ struct CardDetailView: View {
         }
     }
 
-    private func managementSection() -> some View {
+    private func managementSection(card: StoredCard) -> some View {
         VStack(spacing: 10) {
             Button { showEditBalance = true } label: {
                 Label("Edit Balance", systemImage: "dollarsign.circle")
@@ -163,8 +175,27 @@ struct CardDetailView: View {
             }
             .buttonStyle(.glassPill)
             .frame(maxWidth: .infinity)
+
+            Button(role: .destructive) {
+                showDeleteConfirmation = true
+            } label: {
+                Label(deleteTitle(for: card), systemImage: "trash")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.destructiveGlass)
         }
         .padding(.horizontal)
+    }
+
+    private func deleteTitle(for card: StoredCard) -> String {
+        card.currentBalanceMinorUnits == 0 ? "Delete Empty Card" : "Delete Card"
+    }
+
+    private func deleteMessage(for card: StoredCard) -> String {
+        if card.currentBalanceMinorUnits == 0 {
+            return "This card has a zero balance and will be removed from your active cards."
+        }
+        return "This card will be removed from your active cards."
     }
 
     private func loadCard() {
@@ -174,6 +205,15 @@ struct CardDetailView: View {
             balanceHistory = try repository.listBalanceHistory(cardID: cardID)
         }
         catch { errorMessage = ErrorMessage(text: error.localizedDescription) }
+    }
+
+    private func deleteCard() {
+        do {
+            try repository.archiveCard(id: cardID)
+            dismiss()
+        } catch {
+            errorMessage = ErrorMessage(text: error.localizedDescription)
+        }
     }
 
     private func revealSecrets() {
@@ -258,6 +298,8 @@ private struct EditBalanceView: View {
                 Alert(title: Text("Could Not Save"), message: Text(msg.text), dismissButton: .default(Text("OK")))
             }
             .onAppear { load() }
+            .onChange(of: balanceText) { _, newValue in sanitizeBalance(newValue) }
+            .onChange(of: currency) { _, newValue in sanitizeCurrency(newValue) }
         }
         .preferredColorScheme(.dark)
     }
@@ -266,7 +308,7 @@ private struct EditBalanceView: View {
         do {
             let repo = SwiftDataCardRepository(context: modelContext, encryptionService: environment.encryptionService)
             let card = try repo.getCard(id: cardID)
-            currency = card.currency
+            currency = InputSanitizer.currency(card.currency)
             if let balance = card.currentBalanceMinorUnits {
                 balanceText = String(format: "%.2f", Double(balance) / 100)
             }
@@ -274,21 +316,32 @@ private struct EditBalanceView: View {
     }
 
     private func save() {
-        let trimmed = balanceText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = InputSanitizer.balance(balanceText).trimmingCharacters(in: .whitespacesAndNewlines)
         let minorUnits = trimmed.isEmpty ? nil : MoneyFormatter.minorUnits(from: trimmed)
         if !trimmed.isEmpty && minorUnits == nil {
             errorMessage = ErrorMessage(text: "Enter a valid balance amount.")
             return
         }
+        let normalizedCurrency = InputSanitizer.currency(currency)
         do {
             let repo = SwiftDataCardRepository(context: modelContext, encryptionService: environment.encryptionService)
             _ = try repo.updateManualBalance(
                 id: cardID,
                 minorUnits: minorUnits,
-                currency: currency.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "USD" : currency.uppercased()
+                currency: normalizedCurrency.isEmpty ? "USD" : normalizedCurrency
             )
             onSave()
             dismiss()
         } catch { errorMessage = ErrorMessage(text: error.localizedDescription) }
+    }
+
+    private func sanitizeBalance(_ value: String) {
+        let sanitized = InputSanitizer.balance(value)
+        if sanitized != value { balanceText = sanitized }
+    }
+
+    private func sanitizeCurrency(_ value: String) {
+        let sanitized = InputSanitizer.currency(value)
+        if sanitized != value { currency = sanitized }
     }
 }

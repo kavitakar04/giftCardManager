@@ -148,6 +148,12 @@ struct AddCardView: View {
                 }
             }
             .onChange(of: selectedMerchantID) { _, _ in applySelectedMerchantDefaults() }
+            .onChange(of: displayName) { _, newValue in sanitizeDisplayName(newValue) }
+            .onChange(of: cardNumber) { _, newValue in sanitizeCardNumber(newValue) }
+            .onChange(of: pin) { _, newValue in sanitizePIN(newValue) }
+            .onChange(of: barcodeValue) { _, newValue in sanitizeBarcodeValue(newValue) }
+            .onChange(of: startingBalance) { _, newValue in sanitizeStartingBalance(newValue) }
+            .onChange(of: currency) { _, newValue in sanitizeCurrency(newValue) }
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase != .active { pendingOCRResult = nil }
             }
@@ -163,7 +169,7 @@ struct AddCardView: View {
             }
             .sheet(isPresented: $showScanner) {
                 ScannerPermissionView { scanned in
-                    barcodeValue = scanned.value
+                    barcodeValue = InputSanitizer.barcodeValue(scanned.value)
                     if scanned.format.isRenderableInPhase1,
                        selectedMerchant.supportedBarcodeFormats.contains(scanned.format) {
                         barcodeFormat = scanned.format
@@ -172,7 +178,7 @@ struct AddCardView: View {
                         barcodeFormat = selectedMerchant.supportedBarcodeFormats.first(where: \.isRenderableInPhase1) ?? .code128
                         scanWarning = "\(scanned.format.displayName) was scanned but cannot be rendered. A compatible format was selected."
                     }
-                    if cardNumber.isEmpty { cardNumber = scanned.value }
+                    if cardNumber.isEmpty { cardNumber = InputSanitizer.cardNumber(scanned.value) }
                     showScanner = false
                 }
             }
@@ -189,9 +195,9 @@ struct AddCardView: View {
     private func applySelectedMerchantDefaults() {
         let merchant = selectedMerchant
         if displayName.isEmpty || environment.merchantCatalog.all.contains(where: { $0.displayName == displayName }) {
-            displayName = merchant.displayName
+            displayName = InputSanitizer.displayName(merchant.displayName)
         }
-        currency = merchant.defaultCurrency
+        currency = InputSanitizer.currency(merchant.defaultCurrency)
         if !merchant.supportedBarcodeFormats.contains(barcodeFormat) || !barcodeFormat.isRenderableInPhase1 {
             barcodeFormat = merchant.supportedBarcodeFormats.first(where: \.isRenderableInPhase1) ?? .code128
         }
@@ -199,11 +205,11 @@ struct AddCardView: View {
 
     private func applyOCRConfirmation(_ confirmation: CardOCRConfirmation) {
         selectedMerchantID = confirmation.merchantID
-        displayName = confirmation.displayName
-        cardNumber = confirmation.cardNumber
-        pin = confirmation.pin ?? ""
+        displayName = InputSanitizer.displayName(confirmation.displayName)
+        cardNumber = InputSanitizer.cardNumber(confirmation.cardNumber)
+        pin = InputSanitizer.pin(confirmation.pin ?? "")
         if let barcodeValue = confirmation.barcodeValue, let detectedFormat = confirmation.barcodeFormat {
-            self.barcodeValue = barcodeValue
+            self.barcodeValue = InputSanitizer.barcodeValue(barcodeValue)
             if detectedFormat.isRenderableInPhase1,
                environment.merchantCatalog.merchant(id: confirmation.merchantID).supportedBarcodeFormats.contains(detectedFormat) {
                 barcodeFormat = detectedFormat
@@ -215,13 +221,47 @@ struct AddCardView: View {
                 scanWarning = "\(detectedFormat.displayName) detected but not renderable. A compatible format was selected."
             }
         } else if barcodeValue.isEmpty {
-            barcodeValue = confirmation.cardNumber
+            barcodeValue = InputSanitizer.barcodeValue(confirmation.cardNumber)
         }
     }
 
+    private func sanitizeDisplayName(_ value: String) {
+        let sanitized = InputSanitizer.displayName(value)
+        if sanitized != value { displayName = sanitized }
+    }
+
+    private func sanitizeCardNumber(_ value: String) {
+        let sanitized = InputSanitizer.cardNumber(value)
+        if sanitized != value { cardNumber = sanitized }
+    }
+
+    private func sanitizePIN(_ value: String) {
+        let sanitized = InputSanitizer.pin(value)
+        if sanitized != value { pin = sanitized }
+    }
+
+    private func sanitizeBarcodeValue(_ value: String) {
+        let sanitized = InputSanitizer.barcodeValue(value)
+        if sanitized != value { barcodeValue = sanitized }
+    }
+
+    private func sanitizeStartingBalance(_ value: String) {
+        let sanitized = InputSanitizer.balance(value)
+        if sanitized != value { startingBalance = sanitized }
+    }
+
+    private func sanitizeCurrency(_ value: String) {
+        let sanitized = InputSanitizer.currency(value)
+        if sanitized != value { currency = sanitized }
+    }
+
     private func saveCard() {
-        let trimmedCardNumber = cardNumber.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedBarcode = (barcodeValue.isEmpty ? cardNumber : barcodeValue).trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedCardNumber = InputSanitizer.cardNumber(cardNumber).trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedBarcode = InputSanitizer
+            .barcodeValue(barcodeValue.isEmpty ? cardNumber : barcodeValue)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedPIN = InputSanitizer.pin(pin).trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalizedCurrency = InputSanitizer.currency(currency)
 
         guard !trimmedCardNumber.isEmpty else { errorMessage = ErrorMessage(text: "Card number is required."); return }
         guard !trimmedBarcode.isEmpty else { errorMessage = ErrorMessage(text: "Barcode value is required."); return }
@@ -230,26 +270,27 @@ struct AddCardView: View {
             return
         }
 
-        let balance = startingBalance.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            ? nil : MoneyFormatter.minorUnits(from: startingBalance)
-        if !startingBalance.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && balance == nil {
+        let trimmedBalance = InputSanitizer.balance(startingBalance).trimmingCharacters(in: .whitespacesAndNewlines)
+        let balance = trimmedBalance.isEmpty ? nil : MoneyFormatter.minorUnits(from: trimmedBalance)
+        if !trimmedBalance.isEmpty && balance == nil {
             errorMessage = ErrorMessage(text: "Enter a valid balance amount.")
             return
         }
+        let sanitizedDisplayName = InputSanitizer.displayName(displayName)
 
         do {
             let repo = SwiftDataCardRepository(context: modelContext, encryptionService: environment.encryptionService)
             _ = try repo.createCard(
                 CardCreateInput(
                     merchantID: selectedMerchant.id,
-                    displayName: displayName.isEmpty ? selectedMerchant.displayName : displayName,
+                    displayName: sanitizedDisplayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        ? selectedMerchant.displayName : sanitizedDisplayName,
                     cardNumber: trimmedCardNumber,
-                    pin: pin.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : pin,
+                    pin: trimmedPIN.isEmpty ? nil : trimmedPIN,
                     barcodeValue: trimmedBarcode,
                     barcodeFormat: barcodeFormat,
                     startingBalanceMinorUnits: balance,
-                    currency: currency.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                        ? selectedMerchant.defaultCurrency : currency.uppercased()
+                    currency: normalizedCurrency.isEmpty ? selectedMerchant.defaultCurrency : normalizedCurrency
                 ),
                 merchant: selectedMerchant
             )

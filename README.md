@@ -36,6 +36,17 @@ xcodebuild -project DigitalCards.xcodeproj \
 
 Do not disable simulator code signing for the test command. The app uses Keychain-backed encryption, and an unsigned simulator app can return Keychain entitlement errors such as `-34018`.
 
+Install the prototype on an iPhone:
+
+1. Open `DigitalCards.xcodeproj` in Xcode.
+2. Select the `DigitalCards` target.
+3. In **Signing & Capabilities**, choose your Apple Developer team or personal Apple ID team.
+4. Keep the bundle identifier as `com.kavitakar.DigitalCardsPrototype`, or change it if Xcode reports that it is already taken for your team.
+5. Connect your iPhone, select it as the run destination, and press **Run**.
+6. If iOS asks you to trust the developer profile, open **Settings > General > VPN & Device Management** on the phone and trust the profile.
+
+The app target is configured with the `AppIcon` asset catalog entry, so the installed prototype should show the custom Digital Cards icon on the home screen.
+
 Run the Wallet signing service tests:
 
 ```sh
