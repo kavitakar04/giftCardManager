@@ -8,8 +8,8 @@ struct AddCardView: View {
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject private var environment: AppEnvironment
 
-    @State private var selectedMerchantID = MerchantCatalog.phase1.all.first?.id ?? "subway"
-    @State private var displayName = MerchantCatalog.phase1.all.first?.displayName ?? ""
+    @State private var selectedMerchantID: String
+    @State private var displayName: String
     @State private var cardNumber = ""
     @State private var pin = ""
     @State private var barcodeValue = ""
@@ -24,6 +24,13 @@ struct AddCardView: View {
 
     private var selectedMerchant: Merchant {
         environment.merchantCatalog.merchant(id: selectedMerchantID)
+    }
+
+    init(initialMerchantID: String? = nil) {
+        let fallbackMerchant = MerchantCatalog.phase1.all.first ?? MerchantCatalog.other
+        let merchant = initialMerchantID.map { MerchantCatalog.phase1.merchant(id: $0) } ?? fallbackMerchant
+        _selectedMerchantID = State(initialValue: merchant.id)
+        _displayName = State(initialValue: merchant.displayName)
     }
 
     var body: some View {
