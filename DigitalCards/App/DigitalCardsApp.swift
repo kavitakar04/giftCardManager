@@ -10,6 +10,6 @@ struct DigitalCardsApp: App {
             CardLibraryView()
                 .environmentObject(environment)
         }
-        .modelContainer(for: StoredCard.self)
+        .modelContainer(for: [StoredCard.self, BalanceAdjustment.self])
     }
 }

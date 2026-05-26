@@ -69,6 +69,26 @@ struct CardBalanceTotal: Identifiable, Equatable {
     }
 }
 
+struct CardBalanceStatusCounts: Equatable {
+    let unknownCount: Int
+    let staleCount: Int
+
+    var hasAttentionItems: Bool {
+        unknownCount > 0 || staleCount > 0
+    }
+
+    var displayText: String? {
+        var parts: [String] = []
+        if unknownCount > 0 {
+            parts.append("\(unknownCount) unknown")
+        }
+        if staleCount > 0 {
+            parts.append("\(staleCount) stale")
+        }
+        return parts.isEmpty ? nil : parts.joined(separator: " / ")
+    }
+}
+
 enum CardBalanceCalculator {
     static func totals(for cards: [CardSummary]) -> [CardBalanceTotal] {
         var totalsByCurrency: [String: Int] = [:]
@@ -87,6 +107,22 @@ enum CardBalanceCalculator {
         let totals = totals(for: cards)
         guard !totals.isEmpty else { return nil }
         return totals.map(\.displayText).joined(separator: " + ")
+    }
+
+    static func statusCounts(for cards: [CardSummary]) -> CardBalanceStatusCounts {
+        var unknownCount = 0
+        var staleCount = 0
+
+        for card in cards {
+            if card.currentBalanceMinorUnits == nil || card.balanceStatus == .missing {
+                unknownCount += 1
+            }
+            if card.balanceStatus == .stale || card.balanceStatus == .refreshFailed {
+                staleCount += 1
+            }
+        }
+
+        return CardBalanceStatusCounts(unknownCount: unknownCount, staleCount: staleCount)
     }
 }
 
