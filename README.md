@@ -56,7 +56,7 @@ npm start
 
 A user opens the app, scans the card's printed details with OCR, scans its barcode, or manually enters the card number and PIN. The app then creates a digital version of the card. The digital card can be stored inside the app and optionally added to Apple Wallet. The user can see the brand, card number, barcode, current balance, last refresh time, and redemption instructions.
 
-For example, a Subway card would be entered using the card number and PIN or security code. The app would then check the card's balance through Subway's stored-value balance inquiry page. That page appears to be a balance inquiry page for Subway stored-value cards, meaning it is likely intended to let someone submit card credentials and retrieve the remaining value.
+For example, a Subway or Dunkin' card can be entered using the printed card number, PIN or security code, and barcode. In Phase 1, the app stores the card securely, shows the scannable code, and lets the user manually track the balance after checking it with the merchant.
 
 ## Core User Flow
 
@@ -70,7 +70,7 @@ The basic flow is:
 6. The app stores the card securely, generates a barcode image, and creates a wallet-compatible pass.
 7. The user can use the pass in store by showing the barcode, or copy the card number for online checkout.
 
-Balance tracking is separate. For merchants with a public balance-check flow, the app can query the balance after the user adds credentials. For merchants without an accessible balance lookup, the app lets the user manually update the balance.
+Balance tracking is separate. Phase 1 treats balances as manual user-entered values, with a provider interface left in place for future merchant-specific balance checks.
 
 ## Main Specs
 
@@ -84,7 +84,7 @@ Inputs:
 - **OCR scan:** Use the camera to read the printed card number and PIN.
 - **Manual entry:** Provide a fallback for cards that do not scan cleanly.
 - **Photo capture:** Optionally save front and back images of the card for reference.
-- **Merchant selection:** Let the user choose Subway, Starbucks, Target, or another merchant, or let the app guess based on barcode or card-number pattern.
+- **Merchant selection:** Let the user choose common physical-card merchants such as Dunkin', Subway, Chipotle, Target, Walmart, Home Depot, Best Buy, Sephora, Ulta, Olive Garden, AMC, or another merchant, or let the app guess based on barcode or card-number pattern.
 
 The barcode alone may not be enough. Many gift cards have both a card number and a PIN or security code, and balance checks often require both.
 
@@ -223,7 +223,7 @@ The app converts the messy real-world card into a structured internal object: me
 
 The app creates a mobile version of the card. Inside the app, it is a card object with a barcode. In Apple Wallet, it becomes a signed PassKit `.pkpass` file with card fields, branding, and barcode data.
 
-Balance tracking runs as a separate process. The app periodically or manually calls a merchant-specific balance lookup method. For Subway, that likely means using the stored-value balance inquiry flow. The returned value updates the database and then updates the Apple Wallet pass.
+Balance tracking runs as a separate process. Phase 1 stores user-entered balances and keeps the code organized so merchant-specific lookup methods can be added later. Any returned value from a future lookup would update the database and then update the Apple Wallet pass.
 
 ## Phase 1 Implementation Spec
 
@@ -336,13 +336,22 @@ Merchant
 - support_url
 ```
 
-Starter merchants:
+Starter merchants prioritize common physical gift cards that users may receive, forget, and not actively manage in a merchant app:
 
+- Dunkin'
 - Subway
-- Starbucks
+- Chipotle
 - Target
-- Amazon
+- Walmart
+- Home Depot
+- Best Buy
+- Sephora
+- Ulta Beauty
+- Olive Garden
+- AMC Theatres
 - Other
+
+The catalog can still include Starbucks and Amazon, but they should not be the conceptual center because many users already manage those balances inside dominant merchant apps or redeem them into an account.
 
 Use merchant names and colors only in Phase 1. Do not ship merchant logos unless licensing is handled.
 
