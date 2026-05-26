@@ -25,6 +25,8 @@ protocol CardRepository {
     func createCard(_ input: CardCreateInput, merchant: Merchant) throws -> StoredCard
     func archiveCard(id: UUID) throws
     func updateManualBalance(id: UUID, minorUnits: Int?, currency: String) throws -> StoredCard
+    func listBalanceHistory(cardID: UUID) throws -> [BalanceAdjustment]
+    func listBalanceHistory(merchantID: String) throws -> [BalanceAdjustment]
     func updateVerifiedBalance(
         id: UUID,
         minorUnits: Int,
@@ -106,6 +108,17 @@ final class SwiftDataCardRepository: CardRepository {
         )
 
         context.insert(card)
+        if input.startingBalanceMinorUnits != nil {
+            recordBalanceAdjustment(
+                for: card,
+                previousBalanceMinorUnits: nil,
+                newBalanceMinorUnits: input.startingBalanceMinorUnits,
+                currency: input.currency,
+                balanceSource: .manual,
+                balanceStatus: .userEntered,
+                note: "Starting balance entered."
+            )
+        }
         try context.save()
         return card
     }
@@ -119,15 +132,44 @@ final class SwiftDataCardRepository: CardRepository {
 
     func updateManualBalance(id: UUID, minorUnits: Int?, currency: String) throws -> StoredCard {
         let card = try getCard(id: id)
+        let previousBalance = card.currentBalanceMinorUnits
+        let normalizedCurrency = currency.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "USD" : currency.uppercased()
         card.currentBalanceMinorUnits = minorUnits
-        card.currency = currency
+        card.currency = normalizedCurrency
         card.balanceSource = minorUnits == nil ? .unknown : .manual
         card.balanceStatus = minorUnits == nil ? .missing : .userEntered
         card.lastBalanceUpdateAt = minorUnits == nil ? nil : Date()
         card.lastBalanceCheckStatusMessage = minorUnits == nil ? nil : "Balance entered manually."
         card.updatedAt = Date()
+        recordBalanceAdjustment(
+            for: card,
+            previousBalanceMinorUnits: previousBalance,
+            newBalanceMinorUnits: minorUnits,
+            currency: normalizedCurrency,
+            balanceSource: card.balanceSource,
+            balanceStatus: card.balanceStatus,
+            note: minorUnits == nil ? "Balance cleared." : "Balance entered manually."
+        )
         try context.save()
         return card
+    }
+
+    func listBalanceHistory(cardID: UUID) throws -> [BalanceAdjustment] {
+        var descriptor = FetchDescriptor<BalanceAdjustment>(
+            predicate: #Predicate { $0.cardID == cardID },
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        descriptor.includePendingChanges = true
+        return try context.fetch(descriptor)
+    }
+
+    func listBalanceHistory(merchantID: String) throws -> [BalanceAdjustment] {
+        var descriptor = FetchDescriptor<BalanceAdjustment>(
+            predicate: #Predicate { $0.merchantID == merchantID },
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        descriptor.includePendingChanges = true
+        return try context.fetch(descriptor)
     }
 
     func updateVerifiedBalance(
@@ -138,25 +180,46 @@ final class SwiftDataCardRepository: CardRepository {
         message: String?
     ) throws -> StoredCard {
         let card = try getCard(id: id)
+        let previousBalance = card.currentBalanceMinorUnits
+        let normalizedCurrency = currency.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? card.currency : currency.uppercased()
         card.currentBalanceMinorUnits = minorUnits
-        card.currency = currency.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? card.currency : currency.uppercased()
+        card.currency = normalizedCurrency
         card.balanceSource = .merchantLookup
         card.balanceStatus = .verified
         card.lastBalanceUpdateAt = Date()
         card.lastBalanceCheckStatusMessage = message ?? "Balance verified by \(providerID)."
         card.walletPassSerialNumber = nil
         card.updatedAt = Date()
+        recordBalanceAdjustment(
+            for: card,
+            previousBalanceMinorUnits: previousBalance,
+            newBalanceMinorUnits: minorUnits,
+            currency: normalizedCurrency,
+            balanceSource: .merchantLookup,
+            balanceStatus: .verified,
+            note: message ?? "Balance verified by \(providerID)."
+        )
         try context.save()
         return card
     }
 
     func recordBalanceRefreshFailure(id: UUID, providerID: String, message: String) throws -> StoredCard {
         let card = try getCard(id: id)
+        let previousBalance = card.currentBalanceMinorUnits
         card.balanceStatus = .refreshFailed
         card.lastBalanceCheckStatusMessage = message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             ? "Balance refresh failed with \(providerID)."
             : message
         card.updatedAt = Date()
+        recordBalanceAdjustment(
+            for: card,
+            previousBalanceMinorUnits: previousBalance,
+            newBalanceMinorUnits: card.currentBalanceMinorUnits,
+            currency: card.currency,
+            balanceSource: .merchantLookup,
+            balanceStatus: .refreshFailed,
+            note: card.lastBalanceCheckStatusMessage
+        )
         try context.save()
         return card
     }
@@ -203,6 +266,31 @@ final class SwiftDataCardRepository: CardRepository {
             cardNumber: try encryptionService.decrypt(card.cardNumberCiphertext),
             pin: try card.pinCiphertext.map { try encryptionService.decrypt($0) },
             barcodeValue: try encryptionService.decrypt(card.barcodeValueCiphertext)
+        )
+    }
+
+    private func recordBalanceAdjustment(
+        for card: StoredCard,
+        previousBalanceMinorUnits: Int?,
+        newBalanceMinorUnits: Int?,
+        currency: String,
+        balanceSource: BalanceSource,
+        balanceStatus: BalanceStatus,
+        note: String?
+    ) {
+        context.insert(
+            BalanceAdjustment(
+                cardID: card.id,
+                merchantID: card.merchantID,
+                cardDisplayName: card.displayName,
+                cardNumberLast4: card.cardNumberLast4,
+                previousBalanceMinorUnits: previousBalanceMinorUnits,
+                newBalanceMinorUnits: newBalanceMinorUnits,
+                currency: currency.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? card.currency : currency.uppercased(),
+                balanceSource: balanceSource,
+                balanceStatus: balanceStatus,
+                note: note
+            )
         )
     }
 }
