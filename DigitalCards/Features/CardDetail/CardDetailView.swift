@@ -16,6 +16,7 @@ struct CardDetailView: View {
     @State private var showEditBalance = false
     @State private var showWalletExport = false
     @State private var showDeleteConfirmation = false
+    @State private var shareSheet: GiftCardShareSheet?
     @State private var errorMessage: ErrorMessage?
 
     private var repository: SwiftDataCardRepository {
@@ -67,6 +68,9 @@ struct CardDetailView: View {
                 .sheet(isPresented: $showWalletExport) {
                     WalletExportView(cardID: cardID).environmentObject(environment)
                 }
+                .sheet(item: $shareSheet) { sheet in
+                    GiftCardActivityView(activityItems: sheet.items)
+                }
                 .confirmationDialog(
                     deleteTitle(for: card),
                     isPresented: $showDeleteConfirmation,
@@ -106,6 +110,11 @@ struct CardDetailView: View {
 
                 Button { revealSecrets() } label: {
                     Label("Reveal", systemImage: "lock.open")
+                }
+                .buttonStyle(.glassPill)
+
+                Button { shareCard() } label: {
+                    Label("Share Card", systemImage: "square.and.arrow.up")
                 }
                 .buttonStyle(.glassPill)
 
@@ -226,6 +235,32 @@ struct CardDetailView: View {
         }
     }
 
+    private func shareCard() {
+        Task {
+            do {
+                try await environment.authenticationService.authenticate(reason: "Share this gift card's card number, PIN, and barcode.")
+                guard let card else { return }
+
+                let merchant = environment.merchantCatalog.merchant(id: card.merchantID)
+                let secrets = try repository.decryptSecrets(for: card)
+                var items: [Any] = [
+                    GiftCardShareFormatter.message(card: card, merchant: merchant, secrets: secrets)
+                ]
+
+                if let barcodeImage = try? environment.barcodeService.render(
+                    value: secrets.barcodeValue,
+                    format: card.barcodeFormat
+                ) {
+                    items.append(barcodeImage)
+                }
+
+                shareSheet = GiftCardShareSheet(items: items)
+            } catch {
+                errorMessage = ErrorMessage(text: error.localizedDescription)
+            }
+        }
+    }
+
     private func copyCardNumber() {
         Task {
             do {
@@ -245,6 +280,56 @@ struct CardDetailView: View {
             } catch { errorMessage = ErrorMessage(text: error.localizedDescription) }
         }
     }
+}
+
+struct GiftCardShareFormatter {
+    static func message(card: StoredCard, merchant: Merchant, secrets: CardSecrets) -> String {
+        var lines = [
+            card.displayName,
+            "Merchant: \(merchant.displayName)",
+            "Balance: \(MoneyFormatter.string(minorUnits: card.currentBalanceMinorUnits, currency: card.currency))",
+            "Card number: \(secrets.cardNumber)"
+        ]
+
+        if let pin = normalizedPIN(secrets.pin) {
+            lines.append("PIN: \(pin)")
+        }
+
+        lines.append("Barcode value: \(secrets.barcodeValue)")
+        lines.append("Barcode format: \(card.barcodeFormat.displayName)")
+
+        let notes = merchant.redemptionNotes.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !notes.isEmpty {
+            lines.append("Redemption: \(notes)")
+        }
+
+        lines.append("Treat these details like cash.")
+        return lines.joined(separator: "\n")
+    }
+
+    private static func normalizedPIN(_ pin: String?) -> String? {
+        guard let trimmed = pin?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmed.isEmpty else {
+            return nil
+        }
+        return trimmed
+    }
+}
+
+private struct GiftCardShareSheet: Identifiable {
+    let id = UUID()
+    let items: [Any]
+}
+
+private struct GiftCardActivityView: UIViewControllerRepresentable {
+    let activityItems: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+        controller.popoverPresentationController?.sourceView = controller.view
+        return controller
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 private struct EditBalanceView: View {

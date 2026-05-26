@@ -38,6 +38,43 @@ final class WalletPassServiceTests: XCTestCase {
         XCTAssertTrue(json.contains("\"pin\":\"9999\""))
         XCTAssertFalse(json.contains("1234567890123456\"card"))
     }
+
+    @MainActor
+    func testGiftCardShareMessageIncludesRedeemableDetails() {
+        let card = StoredCard(
+            merchantID: "target",
+            displayName: "Target GiftCard",
+            cardNumberCiphertext: Data(repeating: 1, count: 8),
+            pinCiphertext: Data(repeating: 2, count: 8),
+            barcodeValueCiphertext: Data(repeating: 3, count: 8),
+            barcodeFormat: .code128,
+            currentBalanceMinorUnits: 2500,
+            currency: "USD",
+            balanceSource: .manual,
+            balanceStatus: .userEntered,
+            lastBalanceUpdateAt: nil,
+            cardNumberLast4: "3456"
+        )
+        let merchant = MerchantCatalog.phase1.merchant(id: "target")
+
+        let message = GiftCardShareFormatter.message(
+            card: card,
+            merchant: merchant,
+            secrets: CardSecrets(
+                cardNumber: "1234567890123456",
+                pin: "99999999",
+                barcodeValue: "1234567890123456"
+            )
+        )
+
+        XCTAssertTrue(message.contains("Merchant: Target"))
+        XCTAssertTrue(message.contains("Balance: $25.00"))
+        XCTAssertTrue(message.contains("Card number: 1234567890123456"))
+        XCTAssertTrue(message.contains("PIN: 99999999"))
+        XCTAssertTrue(message.contains("Barcode value: 1234567890123456"))
+        XCTAssertTrue(message.contains("Barcode format: Code 128"))
+        XCTAssertTrue(message.contains("Treat these details like cash."))
+    }
 }
 final class BalanceLookupServiceTests: XCTestCase {
     func testPhaseOneCatalogPrioritizesPhysicalManualGiftCards() {
