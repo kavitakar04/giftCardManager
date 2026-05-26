@@ -10,6 +10,7 @@ struct CardDetailView: View {
     @EnvironmentObject private var environment: AppEnvironment
 
     @State private var card: StoredCard?
+    @State private var balanceHistory: [BalanceAdjustment] = []
     @State private var revealedSecrets: CardSecrets?
     @State private var showEditBalance = false
     @State private var showWalletExport = false
@@ -48,6 +49,7 @@ struct CardDetailView: View {
 
                         actionPills(card: card)
                         detailsSection(card: card)
+                        BalanceHistorySection(title: "Balance History", entries: balanceHistory)
                         managementSection()
                     }
                     .padding(.bottom, 40)
@@ -166,7 +168,10 @@ struct CardDetailView: View {
     }
 
     private func loadCard() {
-        do { card = try repository.getCard(id: cardID) }
+        do {
+            card = try repository.getCard(id: cardID)
+            balanceHistory = try repository.listBalanceHistory(cardID: cardID)
+        }
         catch { errorMessage = ErrorMessage(text: error.localizedDescription) }
     }
 

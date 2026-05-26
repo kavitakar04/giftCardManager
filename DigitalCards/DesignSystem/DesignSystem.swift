@@ -212,3 +212,104 @@ struct DetailRow: View {
         }
     }
 }
+
+struct BalanceHistorySection: View {
+    let title: String
+    let entries: [BalanceAdjustment]
+    var showCardName = false
+    var emptyMessage = "No balance history yet."
+    var limit: Int?
+
+    private var visibleEntries: [BalanceAdjustment] {
+        guard let limit else { return entries }
+        return Array(entries.prefix(limit))
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .textCase(.uppercase)
+                .padding(.horizontal)
+
+            VStack(spacing: 0) {
+                if visibleEntries.isEmpty {
+                    Text(emptyMessage)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(16)
+                } else {
+                    ForEach(Array(visibleEntries.enumerated()), id: \.element.id) { index, entry in
+                        BalanceHistoryRow(entry: entry, showCardName: showCardName)
+                        if index < visibleEntries.count - 1 {
+                            Divider()
+                                .padding(.leading, 16)
+                        }
+                    }
+                }
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .stroke(.white.opacity(0.1), lineWidth: 1)
+                    )
+            )
+            .padding(.horizontal)
+        }
+    }
+}
+
+private struct BalanceHistoryRow: View {
+    let entry: BalanceAdjustment
+    let showCardName: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(entry.statusLabel)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.primary)
+                    if showCardName {
+                        Text("\(entry.cardDisplayName) •••• \(entry.cardNumberLast4)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Spacer(minLength: 12)
+
+                Text(entry.changeText)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .multilineTextAlignment(.trailing)
+            }
+
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text(entry.createdAt.shortDisplay)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Spacer(minLength: 12)
+
+                Text(entry.balanceText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.trailing)
+            }
+
+            if let note = entry.note, !note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Text(note)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 13)
+    }
+}
