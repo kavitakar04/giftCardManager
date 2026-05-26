@@ -36,6 +36,21 @@ final class CardOCRServiceTests: XCTestCase {
         XCTAssertEqual(result.barcode?.format, .code128)
     }
 
+    func testDetectsExpandedMerchantAlias() {
+        let service = CardOCRService()
+
+        let result = service.recognize(
+            textBlocks: [
+                "Dunkin Donuts Gift Card",
+                "Card Number 1234 5678 9012 3456"
+            ],
+            barcode: nil,
+            catalog: .phase1
+        )
+
+        XCTAssertEqual(result.merchantCandidates.first?.merchantID, "dunkin")
+    }
+
     func testUnknownMerchantFallsBackToOther() {
         let service = CardOCRService()
 

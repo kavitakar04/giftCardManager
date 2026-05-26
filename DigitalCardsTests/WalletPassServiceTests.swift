@@ -40,37 +40,35 @@ final class WalletPassServiceTests: XCTestCase {
     }
 }
 final class BalanceLookupServiceTests: XCTestCase {
-    func testPhaseOneMerchantsExposeLookupDescriptors() {
+    func testPhaseOneCatalogPrioritizesPhysicalManualGiftCards() {
         let catalog = MerchantCatalog.phase1
 
-        let subway = catalog.merchant(id: "subway").balanceLookup
-        XCTAssertEqual(subway.capability, .officialWeb)
-        XCTAssertEqual(subway.providerID, "subway-official-web")
-        XCTAssertEqual(subway.requiredFields, [.cardNumber, .pin])
-        XCTAssertEqual(subway.officialURL?.absoluteString, "https://www.subway.com/en-us/subwaycard?id=home")
-
-        let starbucks = catalog.merchant(id: "starbucks").balanceLookup
-        XCTAssertEqual(starbucks.capability, .officialWeb)
-        XCTAssertEqual(starbucks.requiredFields, [.accountLogin])
-        XCTAssertEqual(starbucks.officialURL?.absoluteString, "https://www.starbucks.com/card")
-
-        let target = catalog.merchant(id: "target").balanceLookup
-        XCTAssertEqual(target.capability, .officialWeb)
-        XCTAssertEqual(target.requiredFields, [.cardNumber, .accessCode])
-        XCTAssertEqual(target.officialURL?.absoluteString, "https://www.target.com/giftcard/check-balance")
-
-        let amazon = catalog.merchant(id: "amazon").balanceLookup
-        XCTAssertEqual(amazon.capability, .officialWeb)
-        XCTAssertEqual(amazon.requiredFields, [.accountLogin])
-        XCTAssertEqual(amazon.officialURL?.absoluteString, "https://www.amazon.com/gc/balance")
-
-        let other = catalog.merchant(id: "other").balanceLookup
-        XCTAssertEqual(other.capability, .manualOnly)
-        XCTAssertEqual(other.requiredFields, [])
-        XCTAssertNil(other.officialURL)
+        XCTAssertEqual(catalog.all.count, 28)
+        XCTAssertEqual(
+            catalog.all.prefix(11).map(\.id),
+            [
+                "dunkin",
+                "subway",
+                "chipotle",
+                "target",
+                "walmart",
+                "homedepot",
+                "bestbuy",
+                "sephora",
+                "ulta",
+                "olivegarden",
+                "amc"
+            ]
+        )
+        XCTAssertTrue(catalog.all.allSatisfy { $0.balanceLookup.capability == .manualOnly })
+        XCTAssertEqual(catalog.merchant(id: "dunkin").category, .foodAndCoffee)
+        XCTAssertEqual(catalog.merchant(id: "olivegarden").category, .restaurants)
+        XCTAssertEqual(catalog.merchant(id: "visa_prepaid").category, .prepaid)
+        XCTAssertFalse(catalog.merchant(id: "starbucks").requiresPin)
+        XCTAssertFalse(catalog.merchant(id: "amazon").requiresPin)
     }
 
-    func testOfficialWebMerchantsAreNotSubmittedToBackend() async throws {
+    func testManualCatalogMerchantsAreNotSubmittedToBackend() async throws {
         let service = BalanceLookupService(baseURL: URL(string: "http://localhost:3000")!)
         let merchant = MerchantCatalog.phase1.merchant(id: "target")
         let secrets = CardSecrets(cardNumber: "123456789012345", pin: "99999999", barcodeValue: "123456789012345")
@@ -82,7 +80,7 @@ final class BalanceLookupServiceTests: XCTestCase {
                 consentToken: nil,
                 consentVersion: nil
             )
-            XCTFail("Official web merchants should not use backend auto refresh.")
+            XCTFail("Manual catalog merchants should not use backend auto refresh.")
         } catch BalanceLookupError.unsupportedAutoRefresh(let message) {
             XCTAssertTrue(message.contains("Target"))
         }
@@ -124,6 +122,15 @@ final class CardRepositoryBalanceTests: XCTestCase {
         XCTAssertEqual(verified.currentBalanceMinorUnits, 1400)
         XCTAssertEqual(verified.lastBalanceCheckStatusMessage, "Verified at merchant.")
         XCTAssertNil(verified.walletPassSerialNumber)
+
+        let history = try repository.listBalanceHistory(cardID: card.id)
+        XCTAssertEqual(history.count, 2)
+        XCTAssertEqual(history[0].previousBalanceMinorUnits, 1250)
+        XCTAssertEqual(history[0].newBalanceMinorUnits, 1400)
+        XCTAssertEqual(history[0].balanceStatus, .verified)
+        XCTAssertEqual(history[1].previousBalanceMinorUnits, nil)
+        XCTAssertEqual(history[1].newBalanceMinorUnits, 1250)
+        XCTAssertEqual(history[1].balanceStatus, .userEntered)
     }
 
     @MainActor
@@ -153,6 +160,44 @@ final class CardRepositoryBalanceTests: XCTestCase {
         XCTAssertEqual(failed.currentBalanceMinorUnits, 1250)
         XCTAssertEqual(failed.balanceStatus, .refreshFailed)
         XCTAssertEqual(failed.lastBalanceCheckStatusMessage, "Provider unavailable.")
+
+        let history = try repository.listBalanceHistory(cardID: card.id)
+        XCTAssertEqual(history.count, 2)
+        XCTAssertEqual(history[0].previousBalanceMinorUnits, 1250)
+        XCTAssertEqual(history[0].newBalanceMinorUnits, 1250)
+        XCTAssertEqual(history[0].balanceStatus, .refreshFailed)
+        XCTAssertEqual(history[0].note, "Provider unavailable.")
+    }
+
+    @MainActor
+    func testManualBalanceClearIsAudited() throws {
+        let (repository, _) = try makeRepository()
+        let merchant = MerchantCatalog.phase1.merchant(id: "target")
+        let card = try repository.createCard(
+            CardCreateInput(
+                merchantID: merchant.id,
+                displayName: merchant.displayName,
+                cardNumber: "123456789012345",
+                pin: "99999999",
+                barcodeValue: "123456789012345",
+                barcodeFormat: .code128,
+                startingBalanceMinorUnits: 5000,
+                currency: "USD"
+            ),
+            merchant: merchant
+        )
+
+        _ = try repository.updateManualBalance(id: card.id, minorUnits: nil, currency: "USD")
+
+        let cardHistory = try repository.listBalanceHistory(cardID: card.id)
+        XCTAssertEqual(cardHistory.count, 2)
+        XCTAssertEqual(cardHistory[0].previousBalanceMinorUnits, 5000)
+        XCTAssertNil(cardHistory[0].newBalanceMinorUnits)
+        XCTAssertEqual(cardHistory[0].balanceStatus, .missing)
+        XCTAssertEqual(cardHistory[0].changeText, "Cleared balance")
+
+        let merchantHistory = try repository.listBalanceHistory(merchantID: merchant.id)
+        XCTAssertEqual(merchantHistory.map(\.cardID), [card.id, card.id])
     }
 
     @MainActor
@@ -193,7 +238,7 @@ final class CardRepositoryBalanceTests: XCTestCase {
     @MainActor
     private func makeRepository() throws -> (SwiftDataCardRepository, ModelContainer) {
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: StoredCard.self, configurations: configuration)
+        let container = try ModelContainer(for: StoredCard.self, BalanceAdjustment.self, configurations: configuration)
         let encryption = try EncryptionService(keyStore: InMemoryKeyStore(key: Data(repeating: 4, count: 32)))
         return (SwiftDataCardRepository(context: container.mainContext, encryptionService: encryption), container)
     }
