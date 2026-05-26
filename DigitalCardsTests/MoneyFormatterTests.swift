@@ -30,7 +30,25 @@ final class MoneyFormatterTests: XCTestCase {
         )
     }
 
-    private func makeSummary(balance: Int?, currency: String) -> CardSummary {
+    func testBalanceStatusCountsTreatMissingAsUnknownAndFailedRefreshAsStale() {
+        let cards = [
+            makeSummary(balance: nil, currency: "USD", status: .missing),
+            makeSummary(balance: 1000, currency: "USD", status: .stale),
+            makeSummary(balance: 1200, currency: "USD", status: .refreshFailed),
+            makeSummary(balance: 2000, currency: "USD", status: .userEntered)
+        ]
+
+        XCTAssertEqual(
+            CardBalanceCalculator.statusCounts(for: cards),
+            CardBalanceStatusCounts(unknownCount: 1, staleCount: 2)
+        )
+    }
+
+    private func makeSummary(
+        balance: Int?,
+        currency: String,
+        status: BalanceStatus? = nil
+    ) -> CardSummary {
         CardSummary(
             id: UUID(),
             merchantID: "merchant",
@@ -38,7 +56,7 @@ final class MoneyFormatterTests: XCTestCase {
             cardNumberLast4: "1234",
             currentBalanceMinorUnits: balance,
             currency: currency,
-            balanceStatus: balance == nil ? .missing : .userEntered,
+            balanceStatus: status ?? (balance == nil ? .missing : .userEntered),
             lastBalanceUpdateAt: nil
         )
     }
