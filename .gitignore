@@ -1,0 +1,10 @@
+DerivedData/
+DerivedDataVerification/
+node_modules/
+.DS_Store
+*.xcuserstate
+*.xcuserdata/
+services/wallet-signer/.env
+.claude/
+*.xcresult
+build/

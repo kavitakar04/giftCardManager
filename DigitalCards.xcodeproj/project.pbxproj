@@ -1,0 +1,551 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		010000000000000000000001 /* DigitalCardsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000001 /* DigitalCardsApp.swift */; };
+		010000000000000000000002 /* BalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000002 /* BalanceProvider.swift */; };
+		010000000000000000000003 /* BarcodeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000003 /* BarcodeService.swift */; };
+		010000000000000000000004 /* MerchantCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000004 /* MerchantCatalog.swift */; };
+		010000000000000000000005 /* CardModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000005 /* CardModels.swift */; };
+		010000000000000000000006 /* CardRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000006 /* CardRepository.swift */; };
+		010000000000000000000007 /* StoredCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000007 /* StoredCard.swift */; };
+		010000000000000000000008 /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000008 /* AuthenticationService.swift */; };
+		010000000000000000000009 /* EncryptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000009 /* EncryptionService.swift */; };
+		01000000000000000000000A /* KeychainKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000000A /* KeychainKeyStore.swift */; };
+		01000000000000000000000B /* MoneyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000000B /* MoneyFormatter.swift */; };
+		01000000000000000000000C /* WalletPassService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000000C /* WalletPassService.swift */; };
+		01000000000000000000000D /* AddCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000000D /* AddCardView.swift */; };
+		01000000000000000000000E /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000000E /* BarcodeScannerView.swift */; };
+		01000000000000000000000F /* BarcodeCheckoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000000F /* BarcodeCheckoutView.swift */; };
+		010000000000000000000010 /* CardDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000010 /* CardDetailView.swift */; };
+		010000000000000000000011 /* CardLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000011 /* CardLibraryView.swift */; };
+		010000000000000000000012 /* WalletExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000012 /* WalletExportView.swift */; };
+		010000000000000000000013 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000013 /* AppEnvironment.swift */; };
+		010000000000000000000014 /* ViewHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000014 /* ViewHelpers.swift */; };
+		010000000000000000000015 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000015 /* Assets.xcassets */; };
+		010000000000000000000016 /* EncryptionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000017 /* EncryptionServiceTests.swift */; };
+		010000000000000000000017 /* MoneyFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000018 /* MoneyFormatterTests.swift */; };
+		010000000000000000000018 /* BarcodeServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000019 /* BarcodeServiceTests.swift */; };
+		010000000000000000000019 /* WalletPassServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000001A /* WalletPassServiceTests.swift */; };
+		01000000000000000000001A /* CardOCRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000001D /* CardOCRService.swift */; };
+		01000000000000000000001B /* CardOCRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000001E /* CardOCRScannerView.swift */; };
+		01000000000000000000001C /* OCRConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000001F /* OCRConfirmationView.swift */; };
+		01000000000000000000001D /* CardOCRServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000020 /* CardOCRServiceTests.swift */; };
+		01000000000000000000001E /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000021 /* DesignSystem.swift */; };
+		01000000000000000000001F /* GiftCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000022 /* GiftCardView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		030000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0A0000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 040000000000000000000001;
+			remoteInfo = DigitalCards;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		020000000000000000000001 /* DigitalCardsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/DigitalCardsApp.swift; sourceTree = "<group>"; };
+		020000000000000000000002 /* BalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Balance/BalanceProvider.swift; sourceTree = "<group>"; };
+		020000000000000000000003 /* BarcodeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Barcode/BarcodeService.swift; sourceTree = "<group>"; };
+		020000000000000000000004 /* MerchantCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Merchants/MerchantCatalog.swift; sourceTree = "<group>"; };
+		020000000000000000000005 /* CardModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Models/CardModels.swift; sourceTree = "<group>"; };
+		020000000000000000000006 /* CardRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Persistence/CardRepository.swift; sourceTree = "<group>"; };
+		020000000000000000000007 /* StoredCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Persistence/StoredCard.swift; sourceTree = "<group>"; };
+		020000000000000000000008 /* AuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Security/AuthenticationService.swift; sourceTree = "<group>"; };
+		020000000000000000000009 /* EncryptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Security/EncryptionService.swift; sourceTree = "<group>"; };
+		02000000000000000000000A /* KeychainKeyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Security/KeychainKeyStore.swift; sourceTree = "<group>"; };
+		02000000000000000000000B /* MoneyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Utilities/MoneyFormatter.swift; sourceTree = "<group>"; };
+		02000000000000000000000C /* WalletPassService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Wallet/WalletPassService.swift; sourceTree = "<group>"; };
+		02000000000000000000000D /* AddCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features/AddCard/AddCardView.swift; sourceTree = "<group>"; };
+		02000000000000000000000E /* BarcodeScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features/AddCard/BarcodeScannerView.swift; sourceTree = "<group>"; };
+		02000000000000000000000F /* BarcodeCheckoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features/BarcodeCheckout/BarcodeCheckoutView.swift; sourceTree = "<group>"; };
+		020000000000000000000010 /* CardDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features/CardDetail/CardDetailView.swift; sourceTree = "<group>"; };
+		020000000000000000000011 /* CardLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features/CardLibrary/CardLibraryView.swift; sourceTree = "<group>"; };
+		020000000000000000000012 /* WalletExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features/WalletExport/WalletExportView.swift; sourceTree = "<group>"; };
+		020000000000000000000013 /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Support/AppEnvironment.swift; sourceTree = "<group>"; };
+		020000000000000000000014 /* ViewHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Support/ViewHelpers.swift; sourceTree = "<group>"; };
+		020000000000000000000015 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		020000000000000000000016 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		020000000000000000000017 /* EncryptionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionServiceTests.swift; sourceTree = "<group>"; };
+		020000000000000000000018 /* MoneyFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoneyFormatterTests.swift; sourceTree = "<group>"; };
+		020000000000000000000019 /* BarcodeServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarcodeServiceTests.swift; sourceTree = "<group>"; };
+		02000000000000000000001A /* WalletPassServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletPassServiceTests.swift; sourceTree = "<group>"; };
+		02000000000000000000001B /* DigitalCards.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DigitalCards.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		02000000000000000000001C /* DigitalCardsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DigitalCardsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		02000000000000000000001D /* CardOCRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/OCR/CardOCRService.swift; sourceTree = "<group>"; };
+		02000000000000000000001E /* CardOCRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features/AddCard/CardOCRScannerView.swift; sourceTree = "<group>"; };
+		02000000000000000000001F /* OCRConfirmationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features/AddCard/OCRConfirmationView.swift; sourceTree = "<group>"; };
+		020000000000000000000020 /* CardOCRServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardOCRServiceTests.swift; sourceTree = "<group>"; };
+		020000000000000000000021 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem/DesignSystem.swift; sourceTree = "<group>"; };
+		020000000000000000000022 /* GiftCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem/GiftCardView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		050000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		050000000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		060000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				060000000000000000000002 /* DigitalCards */,
+				060000000000000000000003 /* DigitalCardsTests */,
+				060000000000000000000004 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		060000000000000000000002 /* DigitalCards */ = {
+			isa = PBXGroup;
+			children = (
+				020000000000000000000001 /* DigitalCardsApp.swift */,
+				020000000000000000000021 /* DesignSystem.swift */,
+				020000000000000000000022 /* GiftCardView.swift */,
+				020000000000000000000002 /* BalanceProvider.swift */,
+				020000000000000000000003 /* BarcodeService.swift */,
+				020000000000000000000004 /* MerchantCatalog.swift */,
+				020000000000000000000005 /* CardModels.swift */,
+				02000000000000000000001D /* CardOCRService.swift */,
+				020000000000000000000006 /* CardRepository.swift */,
+				020000000000000000000007 /* StoredCard.swift */,
+				020000000000000000000008 /* AuthenticationService.swift */,
+				020000000000000000000009 /* EncryptionService.swift */,
+				02000000000000000000000A /* KeychainKeyStore.swift */,
+				02000000000000000000000B /* MoneyFormatter.swift */,
+				02000000000000000000000C /* WalletPassService.swift */,
+				02000000000000000000000D /* AddCardView.swift */,
+				02000000000000000000000E /* BarcodeScannerView.swift */,
+				02000000000000000000001E /* CardOCRScannerView.swift */,
+				02000000000000000000001F /* OCRConfirmationView.swift */,
+				02000000000000000000000F /* BarcodeCheckoutView.swift */,
+				020000000000000000000010 /* CardDetailView.swift */,
+				020000000000000000000011 /* CardLibraryView.swift */,
+				020000000000000000000012 /* WalletExportView.swift */,
+				020000000000000000000013 /* AppEnvironment.swift */,
+				020000000000000000000014 /* ViewHelpers.swift */,
+				020000000000000000000015 /* Assets.xcassets */,
+				020000000000000000000016 /* Info.plist */,
+			);
+			path = DigitalCards;
+			sourceTree = "<group>";
+		};
+		060000000000000000000003 /* DigitalCardsTests */ = {
+			isa = PBXGroup;
+			children = (
+				020000000000000000000017 /* EncryptionServiceTests.swift */,
+				020000000000000000000018 /* MoneyFormatterTests.swift */,
+				020000000000000000000019 /* BarcodeServiceTests.swift */,
+				02000000000000000000001A /* WalletPassServiceTests.swift */,
+				020000000000000000000020 /* CardOCRServiceTests.swift */,
+			);
+			path = DigitalCardsTests;
+			sourceTree = "<group>";
+		};
+		060000000000000000000004 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				02000000000000000000001B /* DigitalCards.app */,
+				02000000000000000000001C /* DigitalCardsTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		040000000000000000000001 /* DigitalCards */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 070000000000000000000001 /* Build configuration list for PBXNativeTarget "DigitalCards" */;
+			buildPhases = (
+				080000000000000000000001 /* Sources */,
+				050000000000000000000001 /* Frameworks */,
+				090000000000000000000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DigitalCards;
+			productName = DigitalCards;
+			productReference = 02000000000000000000001B /* DigitalCards.app */;
+			productType = "com.apple.product-type.application";
+		};
+		040000000000000000000002 /* DigitalCardsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 070000000000000000000002 /* Build configuration list for PBXNativeTarget "DigitalCardsTests" */;
+			buildPhases = (
+				080000000000000000000002 /* Sources */,
+				050000000000000000000002 /* Frameworks */,
+				090000000000000000000002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0B0000000000000000000001 /* PBXTargetDependency */,
+			);
+			name = DigitalCardsTests;
+			productName = DigitalCardsTests;
+			productReference = 02000000000000000000001C /* DigitalCardsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0A0000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					040000000000000000000001 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					040000000000000000000002 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = 040000000000000000000001;
+					};
+				};
+			};
+			buildConfigurationList = 070000000000000000000003 /* Build configuration list for PBXProject "DigitalCards" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 060000000000000000000001;
+			productRefGroup = 060000000000000000000004 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				040000000000000000000001 /* DigitalCards */,
+				040000000000000000000002 /* DigitalCardsTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		090000000000000000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				010000000000000000000015 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		090000000000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		080000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				010000000000000000000001 /* DigitalCardsApp.swift in Sources */,
+				01000000000000000000001E /* DesignSystem.swift in Sources */,
+				01000000000000000000001F /* GiftCardView.swift in Sources */,
+				010000000000000000000002 /* BalanceProvider.swift in Sources */,
+				010000000000000000000003 /* BarcodeService.swift in Sources */,
+				010000000000000000000004 /* MerchantCatalog.swift in Sources */,
+				010000000000000000000005 /* CardModels.swift in Sources */,
+				01000000000000000000001A /* CardOCRService.swift in Sources */,
+				010000000000000000000006 /* CardRepository.swift in Sources */,
+				010000000000000000000007 /* StoredCard.swift in Sources */,
+				010000000000000000000008 /* AuthenticationService.swift in Sources */,
+				010000000000000000000009 /* EncryptionService.swift in Sources */,
+				01000000000000000000000A /* KeychainKeyStore.swift in Sources */,
+				01000000000000000000000B /* MoneyFormatter.swift in Sources */,
+				01000000000000000000000C /* WalletPassService.swift in Sources */,
+				01000000000000000000000D /* AddCardView.swift in Sources */,
+				01000000000000000000000E /* BarcodeScannerView.swift in Sources */,
+				01000000000000000000001B /* CardOCRScannerView.swift in Sources */,
+				01000000000000000000001C /* OCRConfirmationView.swift in Sources */,
+				01000000000000000000000F /* BarcodeCheckoutView.swift in Sources */,
+				010000000000000000000010 /* CardDetailView.swift in Sources */,
+				010000000000000000000011 /* CardLibraryView.swift in Sources */,
+				010000000000000000000012 /* WalletExportView.swift in Sources */,
+				010000000000000000000013 /* AppEnvironment.swift in Sources */,
+				010000000000000000000014 /* ViewHelpers.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		080000000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				010000000000000000000016 /* EncryptionServiceTests.swift in Sources */,
+				010000000000000000000017 /* MoneyFormatterTests.swift in Sources */,
+				010000000000000000000018 /* BarcodeServiceTests.swift in Sources */,
+				010000000000000000000019 /* WalletPassServiceTests.swift in Sources */,
+				01000000000000000000001D /* CardOCRServiceTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0B0000000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 040000000000000000000001 /* DigitalCards */;
+			targetProxy = 030000000000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0C0000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		0C0000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		0C0000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = DigitalCards/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.DigitalCards;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		0C0000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = DigitalCards/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.DigitalCards;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		0C0000000000000000000005 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.DigitalCardsTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DigitalCards.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DigitalCards";
+			};
+			name = Debug;
+		};
+		0C0000000000000000000006 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.DigitalCardsTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DigitalCards.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DigitalCards";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		070000000000000000000001 /* Build configuration list for PBXNativeTarget "DigitalCards" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0C0000000000000000000003 /* Debug */,
+				0C0000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		070000000000000000000002 /* Build configuration list for PBXNativeTarget "DigitalCardsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0C0000000000000000000005 /* Debug */,
+				0C0000000000000000000006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		070000000000000000000003 /* Build configuration list for PBXProject "DigitalCards" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0C0000000000000000000001 /* Debug */,
+				0C0000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0A0000000000000000000001 /* Project object */;
+}
