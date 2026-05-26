@@ -169,6 +169,7 @@ struct CardDetailView: View {
 
     private func loadCard() {
         do {
+            try repository.backfillMissingBalanceHistory()
             card = try repository.getCard(id: cardID)
             balanceHistory = try repository.listBalanceHistory(cardID: cardID)
         }

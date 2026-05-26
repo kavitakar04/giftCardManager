@@ -12,6 +12,10 @@ struct CardLibraryView: View {
     @State private var isAddingCard = false
     @State private var errorMessage: ErrorMessage?
 
+    private var repository: SwiftDataCardRepository {
+        SwiftDataCardRepository(context: modelContext, encryptionService: environment.encryptionService)
+    }
+
     private var totalBalanceText: String? {
         CardBalanceCalculator.displayText(for: cards.map(\.summary))
     }
@@ -68,6 +72,7 @@ struct CardLibraryView: View {
             .sheet(isPresented: $isAddingCard) {
                 AddCardView().environmentObject(environment)
             }
+            .onAppear(perform: backfillBalanceHistory)
             .alert(item: $errorMessage) { msg in
                 Alert(title: Text("Error"), message: Text(msg.text), dismissButton: .default(Text("OK")))
             }
@@ -141,6 +146,14 @@ struct CardLibraryView: View {
                 .frame(width: 54, height: 54)
                 .background(Circle().fill(Color.dcNeonBlue))
                 .shadow(color: Color.dcNeonBlue.opacity(0.4), radius: 12, x: 0, y: 4)
+        }
+    }
+
+    private func backfillBalanceHistory() {
+        do {
+            try repository.backfillMissingBalanceHistory()
+        } catch {
+            errorMessage = ErrorMessage(text: error.localizedDescription)
         }
     }
 
